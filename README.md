@@ -22,8 +22,8 @@ React, TypeScript and SVG. Nothing more! ✨
 [Check it in online](https://shan-shui.vercel.app/) or locally:
 
 ```
-npm install
-npm run start
+bun install
+bun start
 ```
 
 ## 📖 Documentation
@@ -31,7 +31,7 @@ npm run start
 [Check it in online](https://megaemce.github.io/shan_shui_docs/) or generate it locally with TypeDoc from Shan_Shui project.
 
 ```
-npm run docs
+bun docs
 ```
 
 ## 📜 Versions

@@ -1,6 +1,12 @@
 import PRNG from "./classes/PRNG";
 import Range from "./classes/Range";
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, {
+    useState,
+    useEffect,
+    useRef,
+    useCallback,
+    ReactElement,
+} from "react";
 import Renderer from "./classes/Renderer";
 import { ScrollableCanvas } from "./ui/ScrollableCanvas";
 import { SettingPanel } from "./ui/SettingPanel";
@@ -9,9 +15,9 @@ import { debounce } from "./utils/utils";
 /**
  * Main application component.
  * @component
- * @returns {JSX.Element} The main application component.
+ * @returns {ReactElement} The main application component.
  */
-export const App = (): JSX.Element => {
+export const App = (): ReactElement => {
     const urlSeed = new URLSearchParams(window.location.search).get("seed");
     const currentDate = new Date().getTime().toString();
     const initalSeed = urlSeed || currentDate;
