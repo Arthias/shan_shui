@@ -8,6 +8,13 @@ body {
     overflow: hidden;
     background: #fff;
 }
+#Landscape {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    mask-composite: intersect;
+    -webkit-mask-composite: source-in;
+}
 #SVG {
     position: absolute;
     left: 0;

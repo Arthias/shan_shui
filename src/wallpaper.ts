@@ -32,6 +32,20 @@ export const settings = {
     /** Empty means a new random landscape on every load */
     seed: new URLSearchParams(window.location.search).get("seed") ?? "",
     hidden: new Set<ElementClass>(),
+    /** Fade the landscape out towards the screen edges */
+    edgeFade: false,
+    /** Width of each edge fade, in % of the screen width or height */
+    fadeLeft: 0,
+    fadeRight: 25,
+    fadeTop: 0,
+    fadeBottom: 0,
+    /** Paint the scene in stage by stage when it is (re)generated */
+    fadeIn: false,
+    /** Seconds each stage takes to appear */
+    fadeInTime: 1.5,
+    /** Regenerate every `regenerateTime` seconds (only with fade-in) */
+    regenerate: false,
+    regenerateTime: 300,
     /** Wallpaper Engine's FPS limit, 0 means no limit */
     fps: 0,
 };
@@ -76,6 +90,15 @@ const PROPERTIES: Record<string, [Setting, (value: unknown) => unknown]> = {
     papercolor: ["paperColor", parseColor],
     papertexture: ["paperTexture", Boolean],
     seed: ["seed", (value) => String(value).trim()],
+    fadegradient: ["edgeFade", Boolean],
+    fadeleft: ["fadeLeft", Number],
+    faderight: ["fadeRight", Number],
+    fadetop: ["fadeTop", Number],
+    fadebottom: ["fadeBottom", Number],
+    fadein: ["fadeIn", Boolean],
+    fadeintime: ["fadeInTime", Number],
+    regenerate: ["regenerate", Boolean],
+    regeneratetime: ["regenerateTime", Number],
 };
 
 /**

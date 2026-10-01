@@ -81,6 +81,14 @@ runtime network calls; the font is a local base64 `@font-face` in `src/style.css
   `<g class="kind">`. Layer groups carry the layer tag as class (boat,
   backgroundMountain, water). A `<style>` in `App.tsx` hides the classes that
   are turned off. Generation is untouched, so the rest of the landscape stays.
+- Edge fade: CSS mask (four intersecting linear gradients) on `#Landscape`, a
+  static wrapper the SVG pans inside, so panning never redraws the mask.
+- Fade-in: `startFadeIn()` writes `@keyframes` rules into a `<style>`, one per
+  class in `PAINT_ORDER` with staggered delays, and removes them when done.
+  Otherwise every `draw()` (innerHTML replace) would replay them. A `draw()`
+  during a fade ends it. Regeneration is a `setInterval` that only runs with
+  fade-in on (it sits under it in the editor). With an empty seed it picks a new
+  random seed, otherwise it repaints the same landscape.
 - Colours: the generators emit only greys. `classes/Palette.ts` maps black to
   ink and white to paper, keeps alpha, and recolours each layer's cached grey
   string by regex. Each layer keeps its grey and coloured strings, so a colour

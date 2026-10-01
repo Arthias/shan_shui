@@ -75,64 +75,154 @@
 				"type": "textinput",
 				"value": ""
 			},
-			"showelements": {
+			"fadegradient": {
+				"text": "Fade gradient…",
+				"type": "bool",
+				"value": false,
 				"index": 8,
-				"order": 108,
+				"order": 108
+			},
+			"fadeleft": {
+				"text": "    Left",
+				"type": "slider",
+				"value": 0,
+				"min": 0,
+				"max": 100,
+				"fraction": false,
+				"condition": "fadegradient.value == true",
+				"index": 9,
+				"order": 109
+			},
+			"faderight": {
+				"text": "    Right",
+				"type": "slider",
+				"value": 25,
+				"min": 0,
+				"max": 100,
+				"fraction": false,
+				"condition": "fadegradient.value == true",
+				"index": 10,
+				"order": 110
+			},
+			"fadetop": {
+				"text": "    Top",
+				"type": "slider",
+				"value": 0,
+				"min": 0,
+				"max": 100,
+				"fraction": false,
+				"condition": "fadegradient.value == true",
+				"index": 11,
+				"order": 111
+			},
+			"fadebottom": {
+				"text": "    Bottom",
+				"type": "slider",
+				"value": 0,
+				"min": 0,
+				"max": 100,
+				"fraction": false,
+				"condition": "fadegradient.value == true",
+				"index": 12,
+				"order": 112
+			},
+			"fadein": {
+				"text": "Fade in…",
+				"type": "bool",
+				"value": false,
+				"index": 13,
+				"order": 113
+			},
+			"fadeintime": {
+				"text": "    Element time (s)",
+				"type": "slider",
+				"value": 1.5,
+				"min": 0.2,
+				"max": 10,
+				"fraction": true,
+				"precision": 1,
+				"step": 0.1,
+				"condition": "fadein.value == true",
+				"index": 14,
+				"order": 114
+			},
+			"regenerate": {
+				"text": "    Regenerate",
+				"type": "bool",
+				"value": false,
+				"condition": "fadein.value == true",
+				"index": 15,
+				"order": 115
+			},
+			"regeneratetime": {
+				"text": "    Regeneration time (s)",
+				"type": "slider",
+				"value": 300,
+				"min": 5,
+				"max": 3600,
+				"fraction": false,
+				"condition": "fadein.value == true && regenerate.value == true",
+				"index": 16,
+				"order": 116
+			},
+			"showelements": {
+				"index": 17,
+				"order": 117,
 				"text": "Scene elements…",
 				"type": "bool",
 				"value": false
 			},
 			"showtrees": {
-				"index": 9,
-				"order": 109,
+				"index": 18,
+				"order": 118,
 				"text": "    Trees",
 				"type": "bool",
 				"value": true,
 				"condition": "showelements.value == true"
 			},
 			"showbuildings": {
-				"index": 10,
-				"order": 110,
+				"index": 19,
+				"order": 119,
 				"text": "    Buildings",
 				"type": "bool",
 				"value": true,
 				"condition": "showelements.value == true"
 			},
 			"showpowerlines": {
-				"index": 11,
-				"order": 111,
+				"index": 20,
+				"order": 120,
 				"text": "    Power lines",
 				"type": "bool",
 				"value": true,
 				"condition": "showelements.value == true"
 			},
 			"showrocks": {
-				"index": 12,
-				"order": 112,
+				"index": 21,
+				"order": 121,
 				"text": "    Rocks",
 				"type": "bool",
 				"value": true,
 				"condition": "showelements.value == true"
 			},
 			"showboats": {
-				"index": 13,
-				"order": 113,
+				"index": 22,
+				"order": 122,
 				"text": "    Boats",
 				"type": "bool",
 				"value": true,
 				"condition": "showelements.value == true"
 			},
 			"showdistantmountains": {
-				"index": 14,
-				"order": 114,
+				"index": 23,
+				"order": 123,
 				"text": "    Distant mountains",
 				"type": "bool",
 				"value": true,
 				"condition": "showelements.value == true"
 			},
 			"showwater": {
-				"index": 15,
-				"order": 115,
+				"index": 24,
+				"order": 124,
 				"text": "    Water ripples",
 				"type": "bool",
 				"value": true,

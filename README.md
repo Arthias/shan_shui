@@ -63,6 +63,11 @@ User properties:
 | Paper colour | `papercolor` | colour |
 | Paper texture | `papertexture` | checkbox |
 | Seed (empty: new landscape on each load) | `seed` | text |
+| Fade gradient… (shows the four sliders below) | `fadegradient` | checkbox |
+| Left, right, top, bottom: how far the fade reaches into the screen, in % (100 = across the whole screen) | `fadeleft`, `faderight`, `fadetop`, `fadebottom` | sliders 0–100 |
+| Fade in… (paints the scene in stage by stage when it is generated) | `fadein` | checkbox |
+| Element time: seconds each stage takes | `fadeintime` | slider 0.2–10 |
+| Regenerate: repaint every _n_ seconds (new random landscape if the seed is empty) | `regenerate`, `regeneratetime` | checkbox, slider 5–3600 |
 | Scene elements… (shows the toggles below) | `showelements` | checkbox |
 | Trees, buildings, power lines, rocks, boats, distant mountains, water ripples | `showtrees`, `showbuildings`, `showpowerlines`, `showrocks`, `showboats`, `showdistantmountains`, `showwater` | checkboxes |
 

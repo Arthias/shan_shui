@@ -10,6 +10,19 @@ import { onSettingsChange, settings } from "./wallpaper";
 /** A new frame is generated when less than this many screen widths are drawn past the left screen edge */
 const LOOKAHEAD = 2;
 
+/** Order in which the fade-in paints the scene: CSS classes of layers and scene elements */
+const PAINT_ORDER = [
+    "backgroundMountain",
+    "water",
+    "middleMountain",
+    "bottomMountain",
+    "rocks",
+    "trees",
+    "buildings",
+    "powerlines",
+    "boat",
+];
+
 /**
  * Main application component. Scrolls the landscape with requestAnimationFrame.
  * The SVG holds everything from the left screen edge to the end of the generated
@@ -24,6 +37,8 @@ export const App = (): ReactElement => {
     const pictureRef = useRef<SVGGElement>(null);
     const paperRef = useRef<SVGSVGElement>(null);
     const hidingRef = useRef<HTMLStyleElement>(null);
+    const fadingRef = useRef<HTMLStyleElement>(null);
+    const landscapeRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         const wallpaper = wallpaperRef.current as HTMLDivElement;
@@ -31,6 +46,8 @@ export const App = (): ReactElement => {
         const picture = pictureRef.current as SVGGElement;
         const paper = paperRef.current as SVGSVGElement;
         const hiding = hidingRef.current as HTMLStyleElement;
+        const fading = fadingRef.current as HTMLStyleElement;
+        const landscape = landscapeRef.current as HTMLDivElement;
 
         let renderer = new Renderer();
         let palette = new Palette(settings.inkColor, settings.paperColor);
@@ -53,8 +70,30 @@ export const App = (): ReactElement => {
             svg.setAttribute("height", String(height));
         };
 
-        // Generate frames if needed and replace the SVG content
+        let fadeTimer = 0;
+        const endFadeIn = () => {
+            clearTimeout(fadeTimer);
+            fading.textContent = "";
+        };
+        // Paint the scene in stage by stage. Each stage's elements wait at opacity 0, then fade in
+        const startFadeIn = () => {
+            endFadeIn();
+            if (!settings.fadeIn) return;
+            const time = settings.fadeInTime;
+            fading.textContent =
+                "@keyframes paint { from { opacity: 0; } }\n" +
+                PAINT_ORDER.map(
+                    (name, i) =>
+                        `#Picture .${name} { animation: paint ${time}s ease-in-out ${i * time}s both; }`
+                ).join("\n");
+            // Remove the rules afterwards, or every redraw would replay the animation
+            fadeTimer = window.setTimeout(endFadeIn, PAINT_ORDER.length * time * 1000 + 100);
+        };
+
+        // Generate frames if needed and replace the SVG content.
+        // A redraw during a fade-in ends it, since it replaces the animated elements.
         const draw = () => {
+            endFadeIn();
             // Cover half a screen more than needed, so draws are spaced out
             renderer.cover(position + window.innerWidth * (LOOKAHEAD + 0.5));
             renderer.evictBefore(position);
@@ -84,6 +123,7 @@ export const App = (): ReactElement => {
             renderer = new Renderer();
             position = to;
             draw();
+            startFadeIn();
         };
         const restartAtStart = () =>
             restart(settings.scrolling ? 0 : fixedPosition());
@@ -97,6 +137,33 @@ export const App = (): ReactElement => {
             hiding.textContent = [...settings.hidden]
                 .map((name) => `#Picture .${name} { display: none; }`)
                 .join("\n");
+
+            // One gradient per edge; the masks intersect. The mask sits on a container
+            // that does not move, so panning does not redraw it
+            const edges: [string, number][] = [
+                ["to right", settings.fadeLeft],
+                ["to left", settings.fadeRight],
+                ["to bottom", settings.fadeTop],
+                ["to top", settings.fadeBottom],
+            ];
+            const mask = settings.edgeFade
+                ? edges
+                      .map(([direction, size]) => `linear-gradient(${direction}, transparent, black ${size}%)`)
+                      .join(", ")
+                : "none";
+            landscape.style.setProperty("mask-image", mask);
+            landscape.style.setProperty("-webkit-mask-image", mask);
+        };
+
+        let regenerateTimer = 0;
+        const scheduleRegeneration = () => {
+            clearInterval(regenerateTimer);
+            if (!settings.fadeIn || !settings.regenerate) return;
+            regenerateTimer = window.setInterval(() => {
+                // An empty seed setting means a new random landscape each time
+                if (!settings.seed) seed = Date.now().toString();
+                restartAtStart();
+            }, Math.max(5, settings.regenerateTime) * 1000);
         };
 
         let last = performance.now();
@@ -125,6 +192,15 @@ export const App = (): ReactElement => {
         const stopListening = onSettingsChange((changed) => {
             applyLook();
 
+            if (changed.has("fadeIn")) {
+                // Turning it on replays the paint-in on the current view
+                if (settings.fadeIn) startFadeIn();
+                else endFadeIn();
+            }
+            if (changed.has("fadeIn") || changed.has("regenerate") || changed.has("regenerateTime")) {
+                scheduleRegeneration();
+            }
+
             if (changed.has("seed")) {
                 seed = settings.seed || Date.now().toString();
                 restartSoon();
@@ -141,11 +217,14 @@ export const App = (): ReactElement => {
         seed = settings.seed || Date.now().toString();
         applyLook();
         restartAtStart();
+        scheduleRegeneration();
         frameRequest = requestAnimationFrame(tick);
         window.addEventListener("resize", handleResize);
 
         return () => {
             cancelAnimationFrame(frameRequest);
+            clearTimeout(fadeTimer);
+            clearInterval(regenerateTimer);
             window.removeEventListener("resize", handleResize);
             stopListening();
         };
@@ -155,9 +234,14 @@ export const App = (): ReactElement => {
         <div id="Wallpaper" ref={wallpaperRef}>
             {/* Rules that hide the scene elements turned off in the settings */}
             <style ref={hidingRef} />
-            <svg id="SVG" ref={svgRef}>
-                <g id="Picture" ref={pictureRef} />
-            </svg>
+            {/* Fade-in animation rules, present only while the scene paints in */}
+            <style ref={fadingRef} />
+            {/* Static container for the edge fade mask; the SVG pans inside it */}
+            <div id="Landscape" ref={landscapeRef}>
+                <svg id="SVG" ref={svgRef}>
+                    <g id="Picture" ref={pictureRef} />
+                </svg>
+            </div>
             {/* Static overlay, so the paper filter is drawn once, not on every pan.
                 Neutral shading: the paper colour comes from the palette */}
             <svg id="Paper" ref={paperRef}>
