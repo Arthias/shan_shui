@@ -11,6 +11,7 @@
     "scripts": {
         "start": "react-scripts start",
         "build": "react-scripts build",
+        "deploy": "react-scripts build && bun scripts/deploy.mjs",
         "test": "react-scripts test",
         "eject": "react-scripts eject",
         "docs": "typedoc"

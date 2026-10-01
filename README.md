@@ -1,7 +1,7 @@
 <div align="center">
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="./public/img/shanshui_logo_light.png">
-  <img alt="Shan Shui logo" src="./public/img/shanshui_logo_dark.png" width="200" height="200">
+  <source media="(prefers-color-scheme: dark)" srcset="./docs/img/shanshui_logo_light.png">
+  <img alt="Shan Shui logo" src="./docs/img/shanshui_logo_dark.png" width="200" height="200">
 </picture>
 <h1>{Shan, Shui}*</h1> 
 </div>
@@ -9,7 +9,7 @@
 
 Discover the beauty of an ever-evolving Chinese landscape art. This project combines the elegance of procedural generation with the power of vector graphics to create a mesmerizing, infinite-scrolling journey.
 
-<img alt="Shan Shui example" src="./public/img/example.png" width="100%">
+<img alt="Shan Shui example" src="./docs/img/example.png" width="100%">
 
 You can move the canvas with the left and right arrow keys or by using the buttons. In the menu section, you can find an option to download the whole or part of your art as an SVG or to share it with your friends.
 

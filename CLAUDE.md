@@ -30,8 +30,18 @@ Ask the user before pushing or changing anything on GitHub.
 bun install
 bun start        # CRA dev server, http://localhost:3000
 bun run build    # production bundle in build/
+bun run deploy   # build, then copy build/ into the Wallpaper Engine project (WALLPAPER_DIR in .env.local)
 bun docs         # TypeDoc
 ```
+
+The Wallpaper Engine project was imported once to
+`D:\SteamLibrary\steamapps\common\wallpaper_engine\projects\myprojects\shan_shui`.
+Iterate with `bun run deploy`, then reload the wallpaper. Do not import it again,
+because each import creates a new project. `public/project.json` and
+`public/preview.jpg` are the repo copies of the files the editor owns. Deploy
+won't overwrite a newer editor copy; it prints the `cp` command to pull it back
+instead. README and doc images live in `docs/`, outside `public/`, so they stay
+out of the wallpaper.
 
 There are no tests. `react-scripts` 5 (CRA), React 19, TypeScript. No
 runtime network calls; the font is a local base64 `@font-face` in `src/style.css`.

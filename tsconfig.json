@@ -21,7 +21,7 @@
     "plugin": ["typedoc-theme-hierarchy", "@zamiell/typedoc-plugin-not-exported", "typedoc-plugin-rename-defaults"],
     "theme": "hierarchy",
     "name": "{Shan, Shui}*",
-    "readme": "public/readmeDocs.md"
+    "readme": "docs/readmeDocs.md"
   }
   
 }
