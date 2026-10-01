@@ -5,7 +5,7 @@ import { cpSync, existsSync, readdirSync, readFileSync, rmSync, statSync } from 
 import { join } from "node:path";
 
 // Files Wallpaper Engine edits itself: never overwrite a newer copy
-const OWNED_BY_EDITOR = ["project.json", "preview.jpg"];
+const OWNED_BY_EDITOR = ["project.json", "preview.gif"];
 
 if (!process.env.WALLPAPER_DIR && existsSync(".env.local")) {
     const match = readFileSync(".env.local", "utf8").match(/^WALLPAPER_DIR=(.*)$/m);

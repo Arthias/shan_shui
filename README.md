@@ -47,7 +47,7 @@ existing one instead:
 2. Run `bun run deploy`. It builds and copies `build/` into `WALLPAPER_DIR`, then you
    reload the wallpaper in Wallpaper Engine.
 
-`public/project.json` and `public/preview.jpg` are the repo copies of the files the
+`public/project.json` and `public/preview.gif` are the repo copies of the files the
 editor owns. If you change properties or the preview in the editor, deploy keeps
 the newer editor copy and prints the command to copy it back into `public/`.
 

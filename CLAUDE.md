@@ -38,7 +38,7 @@ The Wallpaper Engine project was imported once to
 `D:\SteamLibrary\steamapps\common\wallpaper_engine\projects\myprojects\shan_shui`.
 Iterate with `bun run deploy`, then reload the wallpaper. Do not import it again,
 because each import creates a new project. `public/project.json` and
-`public/preview.jpg` are the repo copies of the files the editor owns. Deploy
+`public/preview.gif` are the repo copies of the files the editor owns. Deploy
 won't overwrite a newer editor copy; it prints the `cp` command to pull it back
 instead. README and doc images live in `docs/`, outside `public/`, so they stay
 out of the wallpaper.
@@ -135,7 +135,7 @@ Done: 1, 2, 3, 4, and the optional smooth scrolling. Item 6 (seed) and the
 listener side of item 7 are implemented in `wallpaper.ts`. The properties still
 have to be created in the Wallpaper Engine editor. Measured on 2026-10-01: a
 headless 80 s run at 1500 px/s over about 60 screen widths kept the heap at
-18–29 MB, with a bounded layer count. Still to do: 5 (import, preview,
+18–29 MB, with a bounded layer count. Still to do: 5 (README polish; preview done: `scripts/preview/`,
 README), ink colour if wanted, and 8 (real test in Wallpaper Engine, including 4K).
 
 1. **Fix loading from disk.** Add `"homepage": "."` to `package.json`. Remove
