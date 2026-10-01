@@ -17,10 +17,12 @@ This file is the only handoff from a first review pass (2026-10-01). Everything
 under "Known problems" was checked against the upstream code at commit
 `312ea4e`; everything under "To do" is a plan, not done work.
 
-Repo setup is the first task if it isn't done yet: the repo should be a GitHub
-fork of `Megaemce/shan_shui` under the user's account, with upstream as the
-`upstream` remote and work on a `wallpaper-engine` branch. Ask the user before
-pushing or creating anything on GitHub.
+Repo setup (done 2026-10-01): `origin` is the **private** repo
+`Arthias/shan_shui`. It is not a GitHub fork, because GitHub does not allow
+private forks of public repos. `upstream` is `Megaemce/shan_shui`, and the full
+upstream history is kept. Work happens on the `wallpaper-engine` branch. Because
+GitHub shows no "forked from" link, the README must link the upstream repos.
+Ask the user before pushing or changing anything on GitHub.
 
 ## Commands
 
@@ -71,7 +73,11 @@ Verified against the code on 2026-10-01:
    rewrites the path to `/` and should throw a SecurityError on a `file://`
    origin (not yet tested in Wallpaper Engine).
 5. **Expensive background.** `feTurbulence numOctaves="5"` filters a fullscreen
-   rect. This is the first suspect for GPU/CPU cost at 4K.
+   rect. This is the first suspect for GPU/CPU cost at 4K. The filter is defined
+   twice: in `ui/ScrollableCanvas.tsx` and in `Renderer.download()`.
+   Also, the `#Background` rect sits at x=0 and is one window wide, while the
+   `viewBox` pans right. The texture probably scrolls off-screen after one screen
+   width and probably needs `x={newPosition}` (not yet checked in a browser).
 6. Blocking `alert` / `confirm` calls (window < 400 px, scrolling left of 0,
    reload confirm) must not fire in a wallpaper.
 7. Dark mode lives in `ui/SettingPanel.tsx`. It reads `prefers-color-scheme` and
@@ -88,21 +94,34 @@ In priority order. Items 1–5 are the minimum for a usable wallpaper.
    the `history.pushState` / `replaceState` calls in `App.tsx` and `Menu.tsx`.
 2. **Remove the interface.** Delete the settings panel, menu, scroll buttons,
    download/share, arrow-key handling and the loader overlay (`ui/SettingPanel.tsx`,
-   `ui/Menu.tsx`, `ui/Button.tsx`, the matching `interfaces/` and CSS). Remove
+   `ui/Menu.tsx`, `ui/Button.tsx`, the matching `interfaces/` and CSS). Download
+   also lives in `Renderer.download()`, so delete it there too. The loader markup
+   and the `getElementById("Loader")` calls are in `ui/ScrollableCanvas.tsx`, which
+   is kept, so strip them from it. Remove
    every `alert` / `confirm`. Keep the canvas and run auto-scroll from page load.
    Keep the dark-mode class toggle (problem 7) so it can become a property.
 3. **Fix memory growth.** Evict frames whose range ends well behind
    `Renderer.visibleRange.start`, for example one screen width back. Frames are
    only ever needed ahead of the viewport because the wallpaper never scrolls
-   left. Check that frame/layer ids used in the SVG `<g id>` strings stay unique
-   after eviction, since `createNewFrame` derives its id from `frames.length`.
+   left. Fix ids at the same time. The SVG `<g id="frame${frameNum}-layer…">`
+   uses `frameNum` = the frame's **array index** in `Renderer.render`, not its
+   `Frame` id, so ids shift once frames are evicted. Separately, `createNewFrame`
+   sets `Frame` ids from `frames.length + 1`, so those repeat. Use one counter that
+   only increases for both. Item 4's cached strings embed the id, so ids must
+   stay fixed for the life of a layer.
 4. **Cut the per-step cost.** Cache each layer's SVG string the first time it is
    rendered, so a step only stringifies new layers. Ideally drop the
    one-Worker-per-layer pattern for cached layers altogether.
-5. **Wallpaper Engine packaging.** Add a `project.json` (`"type": "web"`,
-   `"file": "index.html"`) next to the built files, plus a preview image, and
-   document the build-and-import steps in the README with the credit block.
-   Properties come in through `window.wallpaperPropertyListener.applyUserProperties`.
+5. **Wallpaper Engine packaging.** See
+   https://docs.wallpaperengine.io/en/web/first/gettingstarted.html. Wallpaper
+   Engine **generates `project.json` itself**: run `bun run build`, then drag
+   `build/index.html` onto "Create Wallpaper". It imports every file in `build/`
+   and its subfolders. User properties are added in the editor and saved into
+   that `project.json`. After the first import, copy the generated `project.json`
+   and the preview image into `public/`. CRA copies `public/` into `build/`, so
+   later builds include them and can be copied over the imported project. Write
+   the build-and-import steps and the credit block in the README. Properties
+   reach the page through `window.wallpaperPropertyListener.applyUserProperties`.
 6. **Seed property.** A text property: empty means a random seed (current
    behaviour), any text means a fixed, reproducible landscape. `PRNG.seed`
    already accepts strings. Changing it should regenerate in place using the
