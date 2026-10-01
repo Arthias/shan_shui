@@ -11,6 +11,7 @@ import { normalizeNoise } from "../../utils/utils";
  * Represents a rock with varying heights and textures.
  */
 export default class Rock extends Structure {
+    kind = "rocks";
     /**
      * @param {number} xOffset - The x-axis offset.
      * @param {number} yOffset - The y-axis offset.

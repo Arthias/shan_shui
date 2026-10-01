@@ -66,8 +66,21 @@ runtime network calls; the font is a local base64 `@font-face` in `src/style.css
 - Generation is driven by one global PRNG stream (`PRNG`, `Perlin` are static
   singletons), so output depends on the seed **and** the order frames are
   generated in. Frame ids also feed generation (middle-mountain seeds).
-- User property keys read by `wallpaper.ts`: `scrollspeed` (slider, px/s),
-  `inkcolor` and `papercolor` (colour), `papertexture` (bool), `seed` (text).
+- User properties: `public/project.json` is the source of truth (keys, ranges,
+  display conditions); `wallpaper.ts` maps the keys to `settings` (`PROPERTIES`
+  and `ELEMENTS`). The README has the table.
+- Frames are a fixed 1000 px wide (`FRAME_WIDTH`), so generation depends only on
+  the seed, not on the view position or the screen size. `restart(to)` regenerates
+  from x=0 with the seed in use and jumps to `to`. That is how the horizontal
+  position slider and turning scrolling off work, because evicted frames can't be
+  shown again. An empty seed is replaced by a random one once, so moving a slider
+  does not change the landscape.
+- Hiding elements: categorised structures set `kind` (trees, buildings,
+  powerlines, rocks). `Structure.add` copies it onto the elements, with the
+  outermost category winning, and `Layer.svg()` wraps runs of one kind in
+  `<g class="kind">`. Layer groups carry the layer tag as class (boat,
+  backgroundMountain, water). A `<style>` in `App.tsx` hides the classes that
+  are turned off. Generation is untouched, so the rest of the landscape stays.
 - Colours: the generators emit only greys. `classes/Palette.ts` maps black to
   ink and white to paper, keeps alpha, and recolours each layer's cached grey
   string by regex. Each layer keeps its grey and coloured strings, so a colour

@@ -7,7 +7,7 @@ import Renderer from "./classes/Renderer";
 import { debounce } from "./utils/utils";
 import { onSettingsChange, settings } from "./wallpaper";
 
-/** Frames are generated this many screen widths past the left screen edge */
+/** A new frame is generated when less than this many screen widths are drawn past the left screen edge */
 const LOOKAHEAD = 2;
 
 /**
@@ -23,15 +23,19 @@ export const App = (): ReactElement => {
     const svgRef = useRef<SVGSVGElement>(null);
     const pictureRef = useRef<SVGGElement>(null);
     const paperRef = useRef<SVGSVGElement>(null);
+    const hidingRef = useRef<HTMLStyleElement>(null);
 
     useEffect(() => {
         const wallpaper = wallpaperRef.current as HTMLDivElement;
         const svg = svgRef.current as SVGSVGElement;
         const picture = pictureRef.current as SVGGElement;
         const paper = paperRef.current as SVGSVGElement;
+        const hiding = hidingRef.current as HTMLStyleElement;
 
         let renderer = new Renderer();
         let palette = new Palette(settings.inkColor, settings.paperColor);
+        /** Seed in use: the seed setting, or a random one picked when it is empty */
+        let seed = "";
         let position = 0;
         let drawnStart = 0;
         let drawnEnd = 0;
@@ -40,43 +44,59 @@ export const App = (): ReactElement => {
             svg.style.transform = `translate3d(${drawnStart - position}px, 0, 0)`;
         };
 
+        const setViewBox = () => {
+            const height = window.innerHeight;
+            const shift = (settings.vertical / 100) * height;
+            const length = drawnEnd - drawnStart;
+            svg.setAttribute("viewBox", `${drawnStart} ${-shift} ${length} ${height}`);
+            svg.setAttribute("width", String(length));
+            svg.setAttribute("height", String(height));
+        };
+
         // Generate frames if needed and replace the SVG content
         const draw = () => {
-            const width = window.innerWidth;
-            const height = window.innerHeight;
-
-            renderer.cover(
-                new Range(position, position + width * LOOKAHEAD),
-                width / 2
-            );
+            // Cover half a screen more than needed, so draws are spaced out
+            renderer.cover(position + window.innerWidth * (LOOKAHEAD + 0.5));
             renderer.evictBefore(position);
 
             drawnStart = Math.floor(position);
             drawnEnd = renderer.coveredEnd;
-            const length = drawnEnd - drawnStart;
 
             picture.innerHTML = renderer.svg(
                 new Range(drawnStart, drawnEnd),
                 palette
             );
-            svg.setAttribute("viewBox", `${drawnStart} 0 ${length} ${height}`);
-            svg.setAttribute("width", String(length));
-            svg.setAttribute("height", String(height));
+            setViewBox();
             pan();
         };
 
-        const reseed = () => {
-            PRNG.seed = settings.seed || Date.now().toString();
+        /** Position when scrolling is off: 0 to 2 screen widths */
+        const fixedPosition = () =>
+            (settings.horizontal / 100) * 2 * window.innerWidth;
+
+        /**
+         * Regenerate from x=0 with the seed in use, then move to `to`.
+         * Generation is deterministic, so this shows the same landscape again.
+         */
+        const restart = (to: number) => {
+            PRNG.seed = seed;
             Perlin.perlin = undefined;
             renderer = new Renderer();
-            position = 0;
+            position = to;
             draw();
         };
+        const restartAtStart = () =>
+            restart(settings.scrolling ? 0 : fixedPosition());
+        // Sliders send many updates while dragged
+        const restartSoon = debounce(restartAtStart, 150);
 
         const applyLook = () => {
             palette = new Palette(settings.inkColor, settings.paperColor);
             wallpaper.style.background = palette.paperCSS;
             paper.classList.toggle("hidden", !settings.paperTexture);
+            hiding.textContent = [...settings.hidden]
+                .map((name) => `#Picture .${name} { display: none; }`)
+                .join("\n");
         };
 
         let last = performance.now();
@@ -87,6 +107,7 @@ export const App = (): ReactElement => {
             const elapsed = (now - last) / 1000;
             if (settings.fps > 0 && elapsed < 1 / settings.fps) return;
             last = now;
+            if (!settings.scrolling || settings.speed === 0) return;
 
             // Clamp so a paused wallpaper does not jump when it resumes
             position += settings.speed * Math.min(elapsed, 0.1);
@@ -96,15 +117,30 @@ export const App = (): ReactElement => {
             else pan();
         };
 
-        const handleResize = debounce(draw, 200);
+        const handleResize = debounce(() => {
+            if (settings.scrolling) draw();
+            else restart(fixedPosition());
+        }, 200);
+
         const stopListening = onSettingsChange((changed) => {
             applyLook();
-            if (changed.has("seed")) reseed();
-            else if (changed.has("inkColor") || changed.has("paperColor")) draw();
+
+            if (changed.has("seed")) {
+                seed = settings.seed || Date.now().toString();
+                restartSoon();
+            } else if (!settings.scrolling && position !== fixedPosition()) {
+                // Scrolling was turned off or the position slider moved
+                restartSoon();
+            } else if (changed.has("inkColor") || changed.has("paperColor")) {
+                draw();
+            } else if (changed.has("vertical")) {
+                setViewBox();
+            }
         });
 
+        seed = settings.seed || Date.now().toString();
         applyLook();
-        reseed();
+        restartAtStart();
         frameRequest = requestAnimationFrame(tick);
         window.addEventListener("resize", handleResize);
 
@@ -117,6 +153,8 @@ export const App = (): ReactElement => {
 
     return (
         <div id="Wallpaper" ref={wallpaperRef}>
+            {/* Rules that hide the scene elements turned off in the settings */}
+            <style ref={hidingRef} />
             <svg id="SVG" ref={svgRef}>
                 <g id="Picture" ref={pictureRef} />
             </svg>

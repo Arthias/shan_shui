@@ -11,6 +11,7 @@ import { lineDivider } from "../../utils/polytools";
  * Class representing a generator for a fractal tree-like structure.
  */
 export default class Tree08 extends Structure {
+    kind = "trees";
     /**
      * Constructor for the Tree08 class.
      * @param {number} xOffset - X-coordinate offset of tree08.

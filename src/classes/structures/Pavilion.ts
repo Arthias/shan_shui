@@ -6,6 +6,7 @@ import PRNG from "../PRNG";
 import Rail from "./Rail";
 
 export default class Pavilion extends Structure {
+    kind = "buildings";
     /**
      * Initializes a new instance of the Pavilion class with the specified parameters.
      *

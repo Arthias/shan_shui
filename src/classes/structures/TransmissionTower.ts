@@ -7,6 +7,7 @@ import { lineDivider } from "../../utils/polytools";
  * Represents a transmission tower generated using procedural generation.
  */
 export default class TransmissionTower extends Structure {
+    kind = "powerlines";
     /**
      * @param {number} xOffset - The x-coordinate offset for the transmission tower.
      * @param {number} yOffset - The y-coordinate offset for the transmission tower.

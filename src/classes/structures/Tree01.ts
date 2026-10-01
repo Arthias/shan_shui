@@ -9,6 +9,7 @@ import Element from "../Element";
  * Generates a tree with undulating branches and leaves.
  */
 export default class Tree01 extends Structure {
+    kind = "trees";
     /**
      * Constructor for the Tree01 class.
      * @param {number} xOffset - X-coordinate offset of the tree base.

@@ -5,6 +5,8 @@ import Range from "./Range";
 import { config } from "../config";
 
 const TAG_ORDER = config.renderer.tagOrder;
+/** Width of each generated frame in px */
+const FRAME_WIDTH = 1000;
 
 export default class Renderer {
     /** Frames that are still on screen or ahead of it */
@@ -16,28 +18,27 @@ export default class Renderer {
     private nextFrameId = 1;
 
     /**
-     * Generate a new frame if the given range is not covered yet.
-     * @param range - The range that must be covered
-     * @param extra - How far past the end of the range the new frame reaches
-     * @returns {boolean} Whether a new frame was generated
+     * Generate frames until the given point is covered. Frames have a fixed
+     * width, so a seed always gives the same landscape, wherever the view is
+     * and whatever the screen size.
+     * @param end - The point that must be covered
      */
-    public cover(range: Range, extra: number): boolean {
-        if (range.end <= this.coveredEnd) return false;
+    public cover(end: number): void {
+        while (this.coveredEnd < end) {
+            const range = new Range(this.coveredEnd, this.coveredEnd + FRAME_WIDTH);
+            const frame = new Frame(this.nextFrameId++);
 
-        const newRange = new Range(this.coveredEnd, range.end + extra);
-        const frame = new Frame(this.nextFrameId++);
-
-        new Designer(newRange).plan.forEach((sketch) =>
-            frame.sketchToLayer(sketch)
-        );
-        this.frames.push(frame);
-        this.coveredEnd = newRange.end;
-
-        return true;
+            new Designer(range).plan.forEach((sketch) =>
+                frame.sketchToLayer(sketch)
+            );
+            this.frames.push(frame);
+            this.coveredEnd = range.end;
+        }
     }
 
     /**
-     * Drop frames that end before the given x. The wallpaper never scrolls left.
+     * Drop frames that end before the given x. To show anything left of x again,
+     * start over with a new Renderer and the same seed.
      * @param x - Frames ending before this point are removed
      */
     public evictBefore(x: number): void {

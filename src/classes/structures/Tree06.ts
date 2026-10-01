@@ -11,6 +11,7 @@ import Branch from "../elements/Branch";
  * Class representing a generator for a fractal tree-like structure.
  */
 export default class Tree06 extends Structure {
+    kind = "trees";
     /**
      * Generates a tree structure using fractal patterns.
      * @param {number} xOffset - X-coordinate offset.

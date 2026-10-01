@@ -8,6 +8,7 @@ import Texture from "./Texture";
  * Represents a hut generated using procedural generation.
  */
 export default class Hut extends Structure {
+    kind = "buildings";
     /**
      * @param {number} xOffset - The x-coordinate offset for the hut.
      * @param {number} yOffset - The y-coordinate offset for the hut.

@@ -37,8 +37,19 @@ export default class Layer extends Structure implements ILayer {
      */
     public svg(id: string, palette: Palette): string {
         if (this.greySvg === undefined) {
-            const text = this.elements.map((e) => e.stringify).join("\n");
-            this.greySvg = `<g id="${id}">${text}</g>`;
+            // Wrap runs of elements of one category, so CSS can hide them
+            let text = "";
+            let open: string | undefined;
+            for (const element of this.elements) {
+                if (element.kind !== open) {
+                    if (open) text += "</g>";
+                    if (element.kind) text += `<g class="${element.kind}">`;
+                    open = element.kind;
+                }
+                text += element.stringify + "\n";
+            }
+            if (open) text += "</g>";
+            this.greySvg = `<g id="${id}" class="${this.tag}">${text}</g>`;
             this.elements = [];
         }
         if (this.coloured?.palette !== palette) {

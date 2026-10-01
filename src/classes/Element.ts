@@ -14,6 +14,8 @@ export default class Element {
     stringify: string = "";
     /** Keeping the range of the element so it could be hidden is not within working area */
     range: Range = new Range(0, 0);
+    /** Category of the structure the element belongs to, see Structure.kind */
+    kind?: string;
 
     /**
      * Initializes a new instance of the Elemnt class.

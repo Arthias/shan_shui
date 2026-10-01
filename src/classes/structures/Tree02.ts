@@ -6,6 +6,7 @@ import PRNG from "../PRNG";
  * Generates a tree with blob-like clusters of branches.
  */
 export default class Tree02 extends Structure {
+    kind = "trees";
     /**
      * Constructor for the Tree02 class.
      * @param {number} xOffset - X-coordinate offset of the tree base.

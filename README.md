@@ -55,11 +55,20 @@ User properties:
 
 | Property | Key | Type |
 | --- | --- | --- |
-| Scroll speed (px/s) | `scrollspeed` | slider |
+| Scrolling | `scrolling` | checkbox |
+| Scroll speed (px/s, shown while scrolling) | `scrollspeed` | slider 0–100 |
+| Horizontal position (0–2 screen widths, shown while not scrolling) | `horizontalposition` | slider 0–100 |
+| Vertical position (% of screen height, positive moves down) | `verticalposition` | slider -50–50 |
 | Ink colour | `inkcolor` | colour |
 | Paper colour | `papercolor` | colour |
 | Paper texture | `papertexture` | checkbox |
 | Seed (empty: new landscape on each load) | `seed` | text |
+| Scene elements… (shows the toggles below) | `showelements` | checkbox |
+| Trees, buildings, power lines, rocks, boats, distant mountains, water ripples | `showtrees`, `showbuildings`, `showpowerlines`, `showrocks`, `showboats`, `showdistantmountains`, `showwater` | checkboxes |
+
+A seed always gives the same landscape, so a fixed seed with scrolling off is a
+still picture you can frame with the two position sliders. Hiding an element
+doesn't change the rest of the landscape.
 
 To debug, set a **CEF devtools port** in Wallpaper Engine's settings (General tab) and
 open `localhost:<port>` in Chrome. In a normal browser, `bun start` runs the wallpaper

@@ -17,6 +17,7 @@ const HEIGHT = config.structure.house.height;
 const PERSPECTIVE = config.structure.house.perspective;
 
 export default class House extends Structure {
+    kind = "buildings";
     /**
      * Constructs a House object with specified parameters.
      *

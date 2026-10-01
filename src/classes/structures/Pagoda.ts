@@ -19,6 +19,7 @@ const ROTATION = config.structure.pagoda.rotation;
  * Represents a series of arch structures with decreasing size.
  */
 export default class Pagoda extends Structure {
+    kind = "buildings";
     /**
      * @param {number} xOffset - The x-coordinate offset for the arches.
      * @param {number} yOffset - The y-coordinate offset for the arches.

@@ -7,6 +7,7 @@ import Rail from "./Rail";
  * Represents a series of arch structures with increasing size.
  */
 export default class Tower extends Structure {
+    kind = "buildings";
     /**
      * @param {number} xOffset - The x-coordinate offset for the arches.
      * @param {number} yOffset - The y-coordinate offset for the arches.

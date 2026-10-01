@@ -9,6 +9,7 @@ import { midPoint, triangulate } from "../../utils/polytools";
  * Class representing a generator for a tree structure with a specific pattern.
  */
 export default class Tree07 extends Structure {
+    kind = "trees";
     /**
      * Generates a tree structure with a specific pattern.
      * @param {number} xOffset - X-coordinate offset.

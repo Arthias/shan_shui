@@ -9,6 +9,7 @@ import Element from "../Element";
  * Generates a tree with branches and leaves influenced by a custom bending function.
  */
 export default class Tree03 extends Structure {
+    kind = "trees";
     /**
      * Initializes a new instance of the Tree03 class.
      *

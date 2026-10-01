@@ -10,6 +10,8 @@ import Range from "./Range";
 export default class Structure implements IStructure {
     elements: Array<Element> = [];
     range: Range = new Range(Infinity, -Infinity);
+    /** Category the user can hide, e.g. "trees". When structures nest, the outermost category wins */
+    kind?: string;
 
     /**
      * Adds an object to the elements array.
@@ -20,6 +22,7 @@ export default class Structure implements IStructure {
         if (object instanceof Element) {
             this.elements.push(object);
         } else {
+            Structure.tagElements(object);
             this.elements = this.elements.concat(object.elements);
         }
 
@@ -42,6 +45,7 @@ export default class Structure implements IStructure {
         if (object instanceof Element) {
             this.elements.unshift(object);
         } else {
+            Structure.tagElements(object);
             this.elements = object.elements.concat(this.elements);
         }
 
@@ -52,5 +56,11 @@ export default class Structure implements IStructure {
         if (this.range.end < object.range.end) {
             this.range.end = object.range.end;
         }
+    }
+
+    /** Mark the structure's elements with its category, if it has one */
+    private static tagElements(structure: Structure): void {
+        if (structure.kind === undefined) return;
+        for (const element of structure.elements) element.kind = structure.kind;
     }
 }

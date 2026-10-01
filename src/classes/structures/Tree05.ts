@@ -11,6 +11,7 @@ import Branch from "../elements/Branch";
  * Generates a tree-like structure with branches, bark, and twigs.
  */
 export default class Tree05 extends Structure {
+    kind = "trees";
     /**
      * Constructor for the Tree05Generator class.
      * @param {number} xOffset - X-coordinate offset.
