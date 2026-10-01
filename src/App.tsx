@@ -23,19 +23,8 @@ export const App = (): ReactElement => {
     const initalSeed = urlSeed || currentDate;
 
     if (!PRNG.alreadyPopulated) {
-        if (urlSeed) {
-            PRNG.seed = urlSeed;
-        } else {
-            const state = { info: "Updated URL with new seed" };
-            const title = `{Shan, Shui}* - ${currentDate}`;
-            const url = `/?seed=${currentDate}`;
-            // Use pushState to add to the history stack
-            window.history.pushState(state, title, url);
-            // Use replaceState to replace the current history entry
-            window.history.replaceState(state, title, url);
-
-            PRNG.seed = currentDate;
-        }
+        // No history.pushState: it throws on the file:// origin Wallpaper Engine uses
+        PRNG.seed = initalSeed;
     }
 
     // Refs

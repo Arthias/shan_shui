@@ -83,16 +83,6 @@ export const Menu = ({
             const loaderText = document.getElementById(
                 "LoaderText"
             ) as HTMLElement;
-            const state = { info: "Updated URL with new seed" };
-            const title = `{Shan, Shui}* - ${currentDate}`;
-            const url = `/?seed=${currentDate}`;
-
-            // Use pushState to add to the history stack
-            window.history.pushState(state, title, url);
-
-            // Use replaceState to replace the current history entry
-            window.history.replaceState(state, title, url);
-
             // Bring new seed to life
             PRNG.seed = currentDate;
 
