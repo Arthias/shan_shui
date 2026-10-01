@@ -1,0 +1,21 @@
+An endless Chinese ink landscape — shan shui, "mountain and water" — painted procedurally as it drifts across your desktop. Mountains, pines, pavilions and fishing boats are generated as you watch, so the scroll never repeats.
+
+Every landscape comes from a seed. Leave it empty for a new landscape each time, or type any word to keep one you like: the same seed always paints the same picture.
+
+[h2]Settings[/h2]
+[list]
+[*][b]Scrolling[/b] with adjustable speed, or turn it off and frame a still picture with the horizontal position slider
+[*][b]Vertical position[/b] to fit the landscape to your screen
+[*][b]Ink and paper colours[/b]: classic ink on rice paper, pale ink on dark paper, or anything in between
+[*][b]Paper texture[/b] on or off
+[*][b]Seed[/b] for a fixed, reproducible landscape
+[*][b]Fade gradient[/b]: soften any edge, so the landscape emerges from the paper or dissolves into it
+[*][b]Fade in[/b]: the scene paints itself in layer by layer, from distant mountains to boats. Optionally regenerate every few seconds up to once an hour
+[*][b]Scene elements[/b]: show or hide trees, buildings, power lines, rocks, boats, distant mountains and water
+[/list]
+
+[h2]Performance[/h2]
+Drawn as vector graphics, so it stays sharp at any resolution. Landscape that has scrolled away is discarded, so memory use stays flat however long it runs. The paper texture is the heaviest setting; turn it off on slower machines. Respects Wallpaper Engine's FPS limit.
+
+[h2]Credits[/h2]
+Based on [url=https://github.com/LingDong-/shan-shui-inf]shan-shui-inf[/url] by Lingdong Huang, the React port by [url=https://github.com/RedContritio/shan_shui_inf]RedContritio[/url], and the rewrite by [url=https://github.com/Megaemce/shan_shui]Megaemce[/url]. All credit for the art and the generators goes to them. Wallpaper Engine adaptation by Arthias. MIT licensed.

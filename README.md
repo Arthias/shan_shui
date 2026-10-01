@@ -4,8 +4,19 @@
   <img alt="Shan Shui logo" src="./docs/img/shanshui_logo_dark.png" width="200" height="200">
 </picture>
 <h1>{Shan, Shui}*</h1> 
+<p><b>Wallpaper Engine edition</b></p>
 </div>
 <br>
+
+> This repository has diverged from its upstream into a standalone
+> [Wallpaper Engine](https://store.steampowered.com/app/431960/Wallpaper_Engine/)
+> wallpaper, [published on the Steam Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=3811517642).
+> The landscape art and its generators are the work of the original projects:
+> [shan-shui-inf](https://github.com/LingDong-/shan-shui-inf) by Lingdong Huang,
+> the [React port](https://github.com/RedContritio/shan_shui_inf) by RedContritio,
+> and the [rewrite](https://github.com/Megaemce/shan_shui) by Megaemce, which this
+> repository was cloned from with its full history. See [Versions](#-versions) for
+> what changed here.
 
 Discover the beauty of an ever-evolving Chinese landscape art. This project combines the elegance of procedural generation with the power of vector graphics to create a mesmerizing, infinite-scrolling journey.
 
@@ -13,18 +24,22 @@ Discover the beauty of an ever-evolving Chinese landscape art. This project comb
 
 This fork packages it as a [Wallpaper Engine](https://www.wallpaperengine.io/) web wallpaper: the landscape scrolls slowly and endlessly across your desktop, with no interface.
 
+**Get it on the Steam Workshop:** [Shan Shui](https://steamcommunity.com/sharedfiles/filedetails/?id=3811517642)
+
 ## 🏗️ Tech stack
 
 React, TypeScript and SVG. Nothing more! ✨
 
-## ⚙️ Installation
-
-[Check it in online](https://shan-shui.vercel.app/) or locally:
+## ⚙️ Running it locally
 
 ```
 bun install
 bun start
 ```
+
+This opens the wallpaper in a browser with default settings (add `?seed=` to the
+URL to fix the landscape). Megaemce's interactive web version, with buttons and
+SVG download, is online at [shan-shui.vercel.app](https://shan-shui.vercel.app/).
 
 ## 🖼️ Wallpaper Engine
 
@@ -81,7 +96,7 @@ with default settings, and `?seed=` fixes the landscape.
 
 ## 📖 Documentation
 
-[Check it in online](https://megaemce.github.io/shan_shui_docs/) or generate it locally with TypeDoc from Shan_Shui project.
+Megaemce's code documentation is [online](https://megaemce.github.io/shan_shui_docs/) (for the upstream version), or generate it for this one with TypeDoc:
 
 ```
 bun docs
@@ -89,11 +104,11 @@ bun docs
 
 ## 📜 Versions
 
-This is the third iteration of this app:
+This is the fourth iteration of this app:
 
 1. Firstly created as a [monolithic JavaScript file](https://github.com/LingDong-/shan-shui-inf) by [Lingdong Huang](https://github.com/LingDong-)
 2. Then it was [rebuilt with React 17](https://github.com/RedContritio/shan_shui_inf) by [RedContritio](https://github.com/RedContritio) without changing the source code
-3. I have rebuilt it using React function components, employing an object-oriented programming approach. Additionally, I have addressed several bugs and incorporated various improvements for enhanced performance and readability:
+3. [Megaemce](https://github.com/Megaemce/shan_shui) rebuilt it using React function components and an object-oriented approach, fixing several bugs and improving performance and readability:
 
     - Dark mode was added,
     - Some of the most complex elements were simplified,
@@ -110,6 +125,12 @@ This is the third iteration of this app:
     | New  |  0.19s | 0.25s | 0.25s | 0.23s |
     | Diff | ⏬25x | ⏬19x | ⏬25x | ⏬8x |
 
-4. This fork turns [Megaemce's version](https://github.com/Megaemce/shan_shui) into a Wallpaper Engine wallpaper: smooth scrolling, constant memory use over long runs, ink and paper colours as wallpaper properties, and the interface removed.
+4. This fork turns Megaemce's version into a Wallpaper Engine wallpaper:
+
+    - smooth scrolling, with new landscape generated well off-screen,
+    - constant memory use over long runs (old landscape is discarded, each layer's SVG is built once),
+    - reproducible landscapes: a seed gives the same picture at any position and screen size,
+    - wallpaper properties for speed, position, ink and paper colours, paper texture, seed, edge fades, a paint-in animation with timed regeneration, and hiding scene elements,
+    - the interface removed.
 
 All credit for the art and the generators goes to Lingdong Huang, RedContritio and Megaemce. Licensed under MIT, see [LICENSE](LICENSE).

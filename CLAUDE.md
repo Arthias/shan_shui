@@ -20,9 +20,15 @@ under "Known problems" was checked against the upstream code at commit
 Repo setup (done 2026-10-01): `origin` is the **private** repo
 `Arthias/shan_shui`. It is not a GitHub fork, because GitHub does not allow
 private forks of public repos. `upstream` is `Megaemce/shan_shui`, and the full
-upstream history is kept. Work happens on the `wallpaper-engine` branch. Because
+upstream history is kept. `main` is the wallpaper (fast-forwarded from
+`wallpaper-engine` after the Workshop release); upstream code lives on `upstream/main`. Because
 GitHub shows no "forked from" link, the README must link the upstream repos.
 Ask the user before pushing or changing anything on GitHub.
+
+**Do not run git or delete files** (workspace rule, see `F:\Dev\CLAUDE.md`).
+To commit, append one line to `F:\Dev\.commit-queue\queue.jsonl` and report it
+as queued; the user runs the queue and pushes. `bun run deploy` deletes stale
+files in the Wallpaper Engine folder, so the user runs it; `bun run build` is fine.
 
 ## Commands
 
@@ -44,7 +50,7 @@ instead. README and doc images live in `docs/`, outside `public/`, so they stay
 out of the wallpaper.
 
 There are no tests. `react-scripts` 5 (CRA), React 19, TypeScript. No
-runtime network calls; the font is a local base64 `@font-face` in `src/style.css`.
+runtime network calls and no fonts.
 
 ## How it works
 
@@ -94,13 +100,12 @@ runtime network calls; the font is a local base64 `@font-face` in `src/style.css
   string by regex. Each layer keeps its grey and coloured strings, so a colour
   change only redoes the string replace. Dark mode was removed: it is just a
   palette. The paper filter is neutral shading (white light); its beige is the
-  default paper colour, so the default look matches upstream. They must match the
-  keys created in the Wallpaper Engine editor.
+  default paper colour, so the default look matches upstream.
 
 ## Known problems that matter for a wallpaper
 
 Found in upstream on 2026-10-01. Problems 1, 2, 4, 6, 7, 8 and 9 are fixed on
-`wallpaper-engine` (see To do). Problem 3 is handled by `reseed()` in
+`wallpaper-engine` (see To do). Problem 3 is handled by `restart()` in
 `App.tsx`. Problem 5 is mitigated, because the filter is now drawn once on a
 static overlay.
 
@@ -143,8 +148,10 @@ Done: 1, 2, 3, 4, and the optional smooth scrolling. Item 6 (seed) and the
 listener side of item 7 are implemented in `wallpaper.ts`. The properties still
 have to be created in the Wallpaper Engine editor. Measured on 2026-10-01: a
 headless 80 s run at 1500 px/s over about 60 screen widths kept the heap at
-18–29 MB, with a bounded layer count. Still to do: 5 (README polish; preview done: `scripts/preview/`,
-README), ink colour if wanted, and 8 (real test in Wallpaper Engine, including 4K).
+18–29 MB, with a bounded layer count. Done since: 5 (README, preview GIF via `scripts/preview/`, Workshop
+description in `docs/workshop-description.txt`), 6, 7 and more properties.
+Published 2026-10-01 on the Steam Workshop: https://steamcommunity.com/sharedfiles/filedetails/?id=3811517642. Still open:
+8 (an hour-long run in Wallpaper Engine, and 4K).
 
 1. **Fix loading from disk.** Add `"homepage": "."` to `package.json`. Remove
    the `history.pushState` / `replaceState` calls in `App.tsx` and `Menu.tsx`.
