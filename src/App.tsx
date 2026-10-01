@@ -1,4 +1,5 @@
 import Perlin from "./classes/Perlin";
+import Palette from "./classes/Palette";
 import PRNG from "./classes/PRNG";
 import Range from "./classes/Range";
 import React, { useEffect, useRef, ReactElement } from "react";
@@ -30,6 +31,7 @@ export const App = (): ReactElement => {
         const paper = paperRef.current as SVGSVGElement;
 
         let renderer = new Renderer();
+        let palette = new Palette(settings.inkColor, settings.paperColor);
         let position = 0;
         let drawnStart = 0;
         let drawnEnd = 0;
@@ -53,7 +55,10 @@ export const App = (): ReactElement => {
             drawnEnd = renderer.coveredEnd;
             const length = drawnEnd - drawnStart;
 
-            picture.innerHTML = renderer.svg(new Range(drawnStart, drawnEnd));
+            picture.innerHTML = renderer.svg(
+                new Range(drawnStart, drawnEnd),
+                palette
+            );
             svg.setAttribute("viewBox", `${drawnStart} 0 ${length} ${height}`);
             svg.setAttribute("width", String(length));
             svg.setAttribute("height", String(height));
@@ -69,7 +74,8 @@ export const App = (): ReactElement => {
         };
 
         const applyLook = () => {
-            wallpaper.classList.toggle("darkmode", settings.darkMode);
+            palette = new Palette(settings.inkColor, settings.paperColor);
+            wallpaper.style.background = palette.paperCSS;
             paper.classList.toggle("hidden", !settings.paperTexture);
         };
 
@@ -92,8 +98,9 @@ export const App = (): ReactElement => {
 
         const handleResize = debounce(draw, 200);
         const stopListening = onSettingsChange((changed) => {
-            if (changed.has("seed")) reseed();
             applyLook();
+            if (changed.has("seed")) reseed();
+            else if (changed.has("inkColor") || changed.has("paperColor")) draw();
         });
 
         applyLook();
@@ -113,7 +120,8 @@ export const App = (): ReactElement => {
             <svg id="SVG" ref={svgRef}>
                 <g id="Picture" ref={pictureRef} />
             </svg>
-            {/* Static overlay, so the paper filter is drawn once, not on every pan */}
+            {/* Static overlay, so the paper filter is drawn once, not on every pan.
+                Neutral shading: the paper colour comes from the palette */}
             <svg id="Paper" ref={paperRef}>
                 <defs>
                     <filter id="roughpaper">
@@ -126,7 +134,7 @@ export const App = (): ReactElement => {
                         />
                         <feDiffuseLighting
                             in="noise"
-                            lightingColor="#F0E7D0"
+                            lightingColor="white"
                             surfaceScale="2"
                             result="diffLight"
                         >

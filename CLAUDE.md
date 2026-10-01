@@ -55,8 +55,8 @@ runtime network calls; the font is a local base64 `@font-face` in `src/style.css
   `translate3d`. When less than `LOOKAHEAD` (2) screen widths of drawn content are
   left, `draw()` generates a frame, evicts frames behind the screen and replaces the
   SVG content. That happens about every half screen width. Paper texture is a
-  static overlay `#Paper` (`mix-blend-mode: multiply`). Dark mode is the
-  `darkmode` class on `#Wallpaper`.
+  static overlay `#Paper` (`mix-blend-mode: multiply`). The paper colour is the
+  background of `#Wallpaper`.
 - `classes/Renderer.ts`: `cover()` plans a new `Frame` with `Designer` once the
   range runs past `coveredEnd`. `evictBefore()` drops frames behind the screen,
   and `svg()` joins visible layers sorted by `config.renderer.tagOrder`.
@@ -67,7 +67,13 @@ runtime network calls; the font is a local base64 `@font-face` in `src/style.css
   singletons), so output depends on the seed **and** the order frames are
   generated in. Frame ids also feed generation (middle-mountain seeds).
 - User property keys read by `wallpaper.ts`: `scrollspeed` (slider, px/s),
-  `darkmode` (bool), `papertexture` (bool), `seed` (text). They must match the
+  `inkcolor` and `papercolor` (colour), `papertexture` (bool), `seed` (text).
+- Colours: the generators emit only greys. `classes/Palette.ts` maps black to
+  ink and white to paper, keeps alpha, and recolours each layer's cached grey
+  string by regex. Each layer keeps its grey and coloured strings, so a colour
+  change only redoes the string replace. Dark mode was removed: it is just a
+  palette. The paper filter is neutral shading (white light); its beige is the
+  default paper colour, so the default look matches upstream. They must match the
   keys created in the Wallpaper Engine editor.
 
 ## Known problems that matter for a wallpaper
@@ -159,9 +165,9 @@ README), ink colour if wanted, and 8 (real test in Wallpaper Engine, including 4
 7. **Pick the user properties.** Review `src/config.ts` and the renderer and
    choose a **small** set, about five or fewer. Likely candidates, to confirm:
    - scroll speed (`step` and/or the 1000 ms interval)
-   - dark mode (bool)
+   - dark mode (bool). Done differently: ink and paper colour properties replace it.
    - paper texture on/off, or a lower `numOctaves` (also the 4K performance lever)
-   - ink colour or ink opacity (the `rgba(100,100,100,…)` values in `config.ts`)
+   - ink colour or ink opacity. Done: `inkcolor` and `papercolor`.
    - optionally, regenerate with a new random seed every N minutes
    Avoid anything that needs the generators reworked.
 8. **Test.** Run it for an hour at 1080p and at 4K if available, and watch memory

@@ -11,7 +11,7 @@ Discover the beauty of an ever-evolving Chinese landscape art. This project comb
 
 <img alt="Shan Shui example" src="./docs/img/example.png" width="100%">
 
-You can move the canvas with the left and right arrow keys or by using the buttons. In the menu section, you can find an option to download the whole or part of your art as an SVG or to share it with your friends.
+This fork packages it as a [Wallpaper Engine](https://www.wallpaperengine.io/) web wallpaper: the landscape scrolls slowly and endlessly across your desktop, with no interface.
 
 ## 🏗️ Tech stack
 
@@ -25,6 +25,45 @@ React, TypeScript and SVG. Nothing more! ✨
 bun install
 bun start
 ```
+
+## 🖼️ Wallpaper Engine
+
+Build the wallpaper and import it once:
+
+1. `bun install`, then `bun run build`.
+2. In Wallpaper Engine, open the editor and drag `build/index.html` onto **Create Wallpaper**.
+   Wallpaper Engine copies the files into a new project folder, usually
+   `<Steam library>\steamapps\common\wallpaper_engine\projects\myprojects\<name>`.
+
+After that, don't import again: each import creates another project. Update the
+existing one instead:
+
+1. Create `.env.local` in the repo root (it is git-ignored) with the project folder:
+
+    ```
+    WALLPAPER_DIR=D:\SteamLibrary\steamapps\common\wallpaper_engine\projects\myprojects\shan_shui
+    ```
+
+2. Run `bun run deploy`. It builds and copies `build/` into `WALLPAPER_DIR`, then you
+   reload the wallpaper in Wallpaper Engine.
+
+`public/project.json` and `public/preview.jpg` are the repo copies of the files the
+editor owns. If you change properties or the preview in the editor, deploy keeps
+the newer editor copy and prints the command to copy it back into `public/`.
+
+User properties:
+
+| Property | Key | Type |
+| --- | --- | --- |
+| Scroll speed (px/s) | `scrollspeed` | slider |
+| Ink colour | `inkcolor` | colour |
+| Paper colour | `papercolor` | colour |
+| Paper texture | `papertexture` | checkbox |
+| Seed (empty: new landscape on each load) | `seed` | text |
+
+To debug, set a **CEF devtools port** in Wallpaper Engine's settings (General tab) and
+open `localhost:<port>` in Chrome. In a normal browser, `bun start` runs the wallpaper
+with default settings, and `?seed=` fixes the landscape.
 
 ## 📖 Documentation
 
@@ -56,3 +95,7 @@ This is the third iteration of this app:
     | Old  | 4.92s | 4.92s | 6.18s | 2.02s |
     | New  |  0.19s | 0.25s | 0.25s | 0.23s |
     | Diff | ⏬25x | ⏬19x | ⏬25x | ⏬8x |
+
+4. This fork turns [Megaemce's version](https://github.com/Megaemce/shan_shui) into a Wallpaper Engine wallpaper: smooth scrolling, constant memory use over long runs, ink and paper colours as wallpaper properties, and the interface removed.
+
+All credit for the art and the generators goes to Lingdong Huang, RedContritio and Megaemce. Licensed under MIT, see [LICENSE](LICENSE).

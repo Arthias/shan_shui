@@ -1,16 +1,12 @@
 body {
     margin: 0;
     overflow: hidden;
-    background: #fff;
 }
 #Wallpaper {
     position: fixed;
     inset: 0;
     overflow: hidden;
     background: #fff;
-}
-#Wallpaper.darkmode {
-    filter: invert(1) sepia(1);
 }
 #SVG {
     position: absolute;

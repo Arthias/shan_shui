@@ -1,3 +1,5 @@
+import { RGB } from "./classes/Palette";
+
 /**
  * Wallpaper settings. Wallpaper Engine changes them through user properties
  * (https://docs.wallpaperengine.io/en/web/customization/properties.html).
@@ -6,7 +8,8 @@
 export const settings = {
     /** Scroll speed in px per second */
     speed: 30,
-    darkMode: window.matchMedia("(prefers-color-scheme: dark)").matches,
+    inkColor: [0, 0, 0] as RGB,
+    paperColor: [240, 231, 208] as RGB,
     paperTexture: true,
     /** Empty means a new random landscape on every load */
     seed: new URLSearchParams(window.location.search).get("seed") ?? "",
@@ -33,6 +36,17 @@ declare global {
     }
 }
 
+/**
+ * Parse a Wallpaper Engine colour, e.g. "1.0 0.1 0.25" (channels from 0 to 1).
+ * @returns {RGB} Channels from 0 to 255
+ */
+function parseColor(value: unknown): RGB {
+    const [r, g, b] = String(value)
+        .split(" ")
+        .map((c) => Math.round(Number(c) * 255));
+    return [r, g, b];
+}
+
 let notify: (changed: Set<Setting>) => void = () => {};
 
 /**
@@ -52,15 +66,20 @@ export function onSettingsChange(
 window.wallpaperPropertyListener = {
     applyUserProperties: (properties) => {
         const changed = new Set<Setting>();
-        const { scrollspeed, darkmode, papertexture, seed } = properties;
+        const { scrollspeed, inkcolor, papercolor, papertexture, seed } =
+            properties;
 
         if (scrollspeed) {
             settings.speed = Number(scrollspeed.value);
             changed.add("speed");
         }
-        if (darkmode) {
-            settings.darkMode = Boolean(darkmode.value);
-            changed.add("darkMode");
+        if (inkcolor) {
+            settings.inkColor = parseColor(inkcolor.value);
+            changed.add("inkColor");
+        }
+        if (papercolor) {
+            settings.paperColor = parseColor(papercolor.value);
+            changed.add("paperColor");
         }
         if (papertexture) {
             settings.paperTexture = Boolean(papertexture.value);

@@ -1,55 +1,55 @@
 {
-	"file" : "index.html",
-	"general" : 
-	{
-		"properties" : 
-		{
-			"darkmode" : 
-			{
-				"index" : 1,
-				"order" : 101,
-				"text" : "Dark mode",
-				"type" : "bool",
-				"value" : false
+	"file": "index.html",
+	"general": {
+		"properties": {
+			"inkcolor": {
+				"index": 1,
+				"order": 101,
+				"text": "Ink colour",
+				"type": "color",
+				"value": "0 0 0"
 			},
-			"papertexture" : 
-			{
-				"index" : 2,
-				"order" : 102,
-				"text" : "Paper texture",
-				"type" : "bool",
-				"value" : true
+			"papercolor": {
+				"index": 2,
+				"order": 102,
+				"text": "Paper colour",
+				"type": "color",
+				"value": "0.94118 0.90588 0.81569"
 			},
-			"schemecolor" : 
-			{
-				"order" : 0,
-				"text" : "ui_browse_properties_scheme_color",
-				"type" : "color",
-				"value" : "0 0 0"
+			"papertexture": {
+				"index": 3,
+				"order": 103,
+				"text": "Paper texture",
+				"type": "bool",
+				"value": true
 			},
-			"scrollspeed" : 
-			{
-				"fraction" : false,
-				"index" : 0,
-				"max" : 300,
-				"min" : 0,
-				"order" : 100,
-				"text" : "Scroll speed",
-				"type" : "slider",
-				"value" : 30
+			"schemecolor": {
+				"order": 0,
+				"text": "ui_browse_properties_scheme_color",
+				"type": "color",
+				"value": "0 0 0"
 			},
-			"seed" : 
-			{
-				"index" : 3,
-				"order" : 103,
-				"text" : "Seed",
-				"type" : "textinput",
-				"value" : ""
+			"scrollspeed": {
+				"fraction": false,
+				"index": 0,
+				"max": 300,
+				"min": 0,
+				"order": 100,
+				"text": "Scroll speed",
+				"type": "slider",
+				"value": 30
+			},
+			"seed": {
+				"index": 4,
+				"order": 104,
+				"text": "Seed",
+				"type": "textinput",
+				"value": ""
 			}
 		}
 	},
-	"preview" : "preview.jpg",
-	"title" : "Shan Shui",
-	"type" : "web",
-	"version" : 0
+	"preview": "preview.jpg",
+	"title": "Shan Shui",
+	"type": "web",
+	"version": 0
 }

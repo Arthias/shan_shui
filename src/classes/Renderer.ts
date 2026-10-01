@@ -1,5 +1,6 @@
 import Designer from "./Designer";
 import Frame from "./Frame";
+import Palette from "./Palette";
 import Range from "./Range";
 import { config } from "../config";
 
@@ -46,9 +47,10 @@ export default class Renderer {
     /**
      * SVG markup of every layer that overlaps the range, in drawing order.
      * @param range - The range to draw
+     * @param palette - Ink and paper colours to draw with
      * @returns {string} The SVG content
      */
-    public svg(range: Range): string {
+    public svg(range: Range, palette: Palette): string {
         const layers = this.frames.flatMap((frame) =>
             frame.layers
                 .map((layer, j) => ({
@@ -69,6 +71,6 @@ export default class Renderer {
             }
         });
 
-        return layers.map(({ layer, id }) => layer.svg(id)).join("\n");
+        return layers.map(({ layer, id }) => layer.svg(id, palette)).join("\n");
     }
 }
