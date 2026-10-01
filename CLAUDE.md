@@ -25,10 +25,9 @@ upstream history is kept. `main` is the wallpaper (fast-forwarded from
 GitHub shows no "forked from" link, the README must link the upstream repos.
 Ask the user before pushing or changing anything on GitHub.
 
-**Do not run git or delete files** (workspace rule, see `F:\Dev\CLAUDE.md`).
-To commit, append one line to `F:\Dev\.commit-queue\queue.jsonl` and report it
-as queued; the user runs the queue and pushes. `bun run deploy` deletes stale
-files in the Wallpaper Engine folder, so the user runs it; `bun run build` is fine.
+The no-git / commit-queue rule in `F:\Dev\CLAUDE.md` is for dispatch agents in
+a separate sandbox. Interactive sessions on the user's machine run git
+normally (confirmed by the user, 2026-10-01). Still ask before pushing.
 
 ## Commands
 
