@@ -38,24 +38,34 @@ runtime network calls; the font is a local base64 `@font-face` in `src/style.css
 
 ## How it works
 
-- `App.tsx` reads `?seed=` (else uses `Date.now()`), seeds `PRNG`, and holds the
-  scroll position `newPosition`. Auto-scroll steps `step` px every 1000 ms.
-- `ui/ScrollableCanvas.tsx` calls `renderer.render(range)` whenever the position
-  or width changes, then injects the SVG string with `dangerouslySetInnerHTML`.
-  The canvas pans by changing the `viewBox`.
-- `classes/Renderer.ts`: if the range is not yet covered, `Designer` plans a new
-  `Frame` (`forwardCoverage` = half the window width ahead). It then collects
-  every visible layer from **all** frames, sorts by `config.renderer.tagOrder`,
-  and stringifies each layer in a freshly spawned Web Worker (`Layer.render`,
-  blob URL from `utils/layerWorker.ts`).
+- `wallpaper.ts` holds `settings` and installs `window.wallpaperPropertyListener`
+  at module load. Without Wallpaper Engine, the defaults apply and `?seed=` works.
+- `App.tsx` runs everything imperatively in one effect. A `requestAnimationFrame`
+  loop advances `position` by `settings.speed` px/s and pans `#SVG` with a CSS
+  `translate3d`. When less than `LOOKAHEAD` (2) screen widths of drawn content are
+  left, `draw()` generates a frame, evicts frames behind the screen and replaces the
+  SVG content. That happens about every half screen width. Paper texture is a
+  static overlay `#Paper` (`mix-blend-mode: multiply`). Dark mode is the
+  `darkmode` class on `#Wallpaper`.
+- `classes/Renderer.ts`: `cover()` plans a new `Frame` with `Designer` once the
+  range runs past `coveredEnd`. `evictBefore()` drops frames behind the screen,
+  and `svg()` joins visible layers sorted by `config.renderer.tagOrder`.
+  `Layer.svg()` builds the markup once, caches it and frees the elements.
 - `classes/layers/*`: mountain, water and boat generators. Tunables live in
   `src/config.ts`.
 - Generation is driven by one global PRNG stream (`PRNG`, `Perlin` are static
-  singletons), so output depends on the seed **and** the order frames are generated in.
+  singletons), so output depends on the seed **and** the order frames are
+  generated in. Frame ids also feed generation (middle-mountain seeds).
+- User property keys read by `wallpaper.ts`: `scrollspeed` (slider, px/s),
+  `darkmode` (bool), `papertexture` (bool), `seed` (text). They must match the
+  keys created in the Wallpaper Engine editor.
 
 ## Known problems that matter for a wallpaper
 
-Verified against the code on 2026-10-01:
+Found in upstream on 2026-10-01. Problems 1, 2, 4, 6, 7, 8 and 9 are fixed on
+`wallpaper-engine` (see To do). Problem 3 is handled by `reseed()` in
+`App.tsx`. Problem 5 is mitigated, because the filter is now drawn once on a
+static overlay.
 
 1. **Unbounded growth.** `Renderer.frames` is only appended to; frames behind
    the viewport are never evicted. Each render loops over every frame, and
@@ -83,12 +93,21 @@ Verified against the code on 2026-10-01:
 7. Dark mode lives in `ui/SettingPanel.tsx`. It reads `prefers-color-scheme` and
    toggles a `darkmode` class on several elements, including the `#SVG`. Removing
    the UI removes dark mode unless that class toggle is moved somewhere else.
+9. **Every layer's range started at x=0.** `Structure.range` started as
+   `Range(0, 0)` and only widened, so visibility culling kept every layer ever
+   generated in the SVG. Fixed by starting at `Range(Infinity, -Infinity)`.
 8. Auto-scroll jumps `step` px once a second instead of moving smoothly, and each
    jump runs a full render (problem 2).
 
 ## To do
 
 In priority order. Items 1–5 are the minimum for a usable wallpaper.
+Done: 1, 2, 3, 4, and the optional smooth scrolling. Item 6 (seed) and the
+listener side of item 7 are implemented in `wallpaper.ts`. The properties still
+have to be created in the Wallpaper Engine editor. Measured on 2026-10-01: a
+headless 80 s run at 1500 px/s over about 60 screen widths kept the heap at
+18–29 MB, with a bounded layer count. Still to do: 5 (import, preview,
+README), ink colour if wanted, and 8 (real test in Wallpaper Engine, including 4K).
 
 1. **Fix loading from disk.** Add `"homepage": "."` to `package.json`. Remove
    the `history.pushState` / `replaceState` calls in `App.tsx` and `Menu.tsx`.

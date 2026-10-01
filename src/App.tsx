@@ -1,169 +1,145 @@
+import Perlin from "./classes/Perlin";
 import PRNG from "./classes/PRNG";
 import Range from "./classes/Range";
-import React, {
-    useState,
-    useEffect,
-    useRef,
-    useCallback,
-    ReactElement,
-} from "react";
+import React, { useEffect, useRef, ReactElement } from "react";
 import Renderer from "./classes/Renderer";
-import { ScrollableCanvas } from "./ui/ScrollableCanvas";
-import { SettingPanel } from "./ui/SettingPanel";
 import { debounce } from "./utils/utils";
+import { onSettingsChange, settings } from "./wallpaper";
+
+/** Frames are generated this many screen widths past the left screen edge */
+const LOOKAHEAD = 2;
 
 /**
- * Main application component.
+ * Main application component. Scrolls the landscape with requestAnimationFrame.
+ * The SVG holds everything from the left screen edge to the end of the generated
+ * frames and pans with a CSS transform, so a frame costs nothing until the
+ * SVG content runs short and a new frame has to be generated.
  * @component
  * @returns {ReactElement} The main application component.
  */
 export const App = (): ReactElement => {
-    const urlSeed = new URLSearchParams(window.location.search).get("seed");
-    const currentDate = new Date().getTime().toString();
-    const initalSeed = urlSeed || currentDate;
+    const wallpaperRef = useRef<HTMLDivElement>(null);
+    const svgRef = useRef<SVGSVGElement>(null);
+    const pictureRef = useRef<SVGGElement>(null);
+    const paperRef = useRef<SVGSVGElement>(null);
 
-    if (!PRNG.alreadyPopulated) {
-        // No history.pushState: it throws on the file:// origin Wallpaper Engine uses
-        PRNG.seed = initalSeed;
-    }
-
-    // Refs
-    const rendererRef = useRef(new Renderer());
-    const timeoutRef = useRef<number | NodeJS.Timeout>(0);
-
-    // State variables
-    const [step, setStep] = useState(100);
-    const [newPosition, setNewPosition] = useState<number>(0);
-    const [windowWidth, setWindowWidth] = useState<number>(window.innerWidth);
-    const [windowHeight, setWindowHeight] = useState<number>(
-        window.innerHeight
-    );
-    const [autoLoad, setAutoLoad] = useState<boolean>(false);
-    const [saveRange, setSaveRange] = useState<Range>(
-        new Range(0, window.innerWidth)
-    );
-    const [autoScroll, setAutoScroll] = useState<boolean>(false);
-    const [svgContent, setSvgContent] = useState("");
-
-    // Cannot be done via setSeed as it will rerender the scene. Look at Menu.tsx
-    Renderer.forwardCoverage = window.innerWidth / 2;
-
-    // Callback function to handle changes in the save range
-    const onChangeSaveRange = (newRange: Range) => {
-        setSaveRange(newRange);
-    };
-
-    // Toggle auto-scrolling state
-    const toggleAutoScroll = () => {
-        setAutoScroll((current) => !current);
-    };
-
-    // Toggle auto-loading state and set the save range
-    const toggleAutoLoad = () => {
-        setAutoLoad((current) => !current);
-        setSaveRange(new Range(newPosition, newPosition + windowWidth));
-    };
-
-    // Perform only on mount
     useEffect(() => {
-        // Handle window resize events with debounce
-        const handleResize = debounce(() => {
-            setWindowWidth(window.innerWidth);
-            setWindowHeight(window.innerHeight);
-        }, 200);
+        const wallpaper = wallpaperRef.current as HTMLDivElement;
+        const svg = svgRef.current as SVGSVGElement;
+        const picture = pictureRef.current as SVGGElement;
+        const paper = paperRef.current as SVGSVGElement;
 
+        let renderer = new Renderer();
+        let position = 0;
+        let drawnStart = 0;
+        let drawnEnd = 0;
+
+        const pan = () => {
+            svg.style.transform = `translate3d(${drawnStart - position}px, 0, 0)`;
+        };
+
+        // Generate frames if needed and replace the SVG content
+        const draw = () => {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+
+            renderer.cover(
+                new Range(position, position + width * LOOKAHEAD),
+                width / 2
+            );
+            renderer.evictBefore(position);
+
+            drawnStart = Math.floor(position);
+            drawnEnd = renderer.coveredEnd;
+            const length = drawnEnd - drawnStart;
+
+            picture.innerHTML = renderer.svg(new Range(drawnStart, drawnEnd));
+            svg.setAttribute("viewBox", `${drawnStart} 0 ${length} ${height}`);
+            svg.setAttribute("width", String(length));
+            svg.setAttribute("height", String(height));
+            pan();
+        };
+
+        const reseed = () => {
+            PRNG.seed = settings.seed || Date.now().toString();
+            Perlin.perlin = undefined;
+            renderer = new Renderer();
+            position = 0;
+            draw();
+        };
+
+        const applyLook = () => {
+            wallpaper.classList.toggle("darkmode", settings.darkMode);
+            paper.classList.toggle("hidden", !settings.paperTexture);
+        };
+
+        let last = performance.now();
+        let frameRequest = 0;
+        const tick = (now: number) => {
+            frameRequest = requestAnimationFrame(tick);
+
+            const elapsed = (now - last) / 1000;
+            if (settings.fps > 0 && elapsed < 1 / settings.fps) return;
+            last = now;
+
+            // Clamp so a paused wallpaper does not jump when it resumes
+            position += settings.speed * Math.min(elapsed, 0.1);
+
+            const ahead = drawnEnd - position;
+            if (ahead < window.innerWidth * LOOKAHEAD) draw();
+            else pan();
+        };
+
+        const handleResize = debounce(draw, 200);
+        const stopListening = onSettingsChange((changed) => {
+            if (changed.has("seed")) reseed();
+            applyLook();
+        });
+
+        applyLook();
+        reseed();
+        frameRequest = requestAnimationFrame(tick);
         window.addEventListener("resize", handleResize);
 
-        // Set forwardCoverage
-        Renderer.forwardCoverage = window.innerWidth / 2;
-
-        // Popup alert if window is too small
-        if (window.innerWidth < 400) {
-            window.alert(
-                "Some mountains need space to grow.\nYour device's port view is too small for the full experience."
-            );
-        }
-
         return () => {
+            cancelAnimationFrame(frameRequest);
             window.removeEventListener("resize", handleResize);
+            stopListening();
         };
     }, []);
 
-    // Handle horizontal scrolling
-    const horizontalScroll = useCallback(
-        (value: number) => {
-            let newValue = newPosition + value;
-
-            if (newValue < 0) {
-                window.alert(
-                    "Already at the beginning of the picture. Move to the right"
-                );
-                return;
-            }
-            if (autoLoad) {
-                setSaveRange(new Range(newValue, newValue + windowWidth));
-            }
-
-            setNewPosition(newValue);
-        },
-        [newPosition, autoLoad, windowWidth]
-    );
-
-    // Effect to handle auto-scrolling and arrow key events
-    useEffect(() => {
-        const autoScrollCallback = () => {
-            if (autoScroll) {
-                horizontalScroll(step);
-                timeoutRef.current = setTimeout(autoScrollCallback, 1000);
-            }
-        };
-
-        if (autoScroll) {
-            timeoutRef.current = setTimeout(autoScrollCallback, 1000);
-        }
-
-        const handleArrowsDown = debounce((event: KeyboardEvent) => {
-            if (event.key === "ArrowLeft") {
-                horizontalScroll(-step);
-            } else if (event.key === "ArrowRight") {
-                horizontalScroll(step);
-            }
-        }, 200);
-
-        document.addEventListener("keydown", handleArrowsDown);
-
-        return () => {
-            document.removeEventListener("keydown", handleArrowsDown);
-            clearTimeout(timeoutRef.current);
-        };
-    }, [autoScroll, step, horizontalScroll]);
-
     return (
-        <>
-            <SettingPanel
-                step={step}
-                setStep={setStep}
-                horizontalScroll={horizontalScroll}
-                toggleAutoScroll={toggleAutoScroll}
-                newPosition={newPosition}
-                setNewPosition={setNewPosition}
-                renderer={rendererRef.current}
-                windowWidth={windowWidth}
-                windowHeight={windowHeight}
-                saveRange={saveRange}
-                onChangeSaveRange={onChangeSaveRange}
-                toggleAutoLoad={toggleAutoLoad}
-                setSvgContent={setSvgContent}
-                initalSeed={initalSeed}
-            />
-            <ScrollableCanvas
-                windowHeight={windowHeight}
-                newPosition={newPosition}
-                windowWidth={windowWidth}
-                renderer={rendererRef.current}
-                svgContent={svgContent}
-                setSvgContent={setSvgContent}
-            />
-        </>
+        <div id="Wallpaper" ref={wallpaperRef}>
+            <svg id="SVG" ref={svgRef}>
+                <g id="Picture" ref={pictureRef} />
+            </svg>
+            {/* Static overlay, so the paper filter is drawn once, not on every pan */}
+            <svg id="Paper" ref={paperRef}>
+                <defs>
+                    <filter id="roughpaper">
+                        <feTurbulence
+                            type="fractalNoise"
+                            stitchTiles="stitch"
+                            baseFrequency="0.02"
+                            numOctaves="5"
+                            result="noise"
+                        />
+                        <feDiffuseLighting
+                            in="noise"
+                            lightingColor="#F0E7D0"
+                            surfaceScale="2"
+                            result="diffLight"
+                        >
+                            <feDistantLight azimuth="45" elevation="60" />
+                        </feDiffuseLighting>
+                    </filter>
+                </defs>
+                <rect
+                    width="100%"
+                    height="100%"
+                    filter="url(#roughpaper)"
+                />
+            </svg>
+        </div>
     );
 };

@@ -9,7 +9,7 @@ import Range from "./Range";
  */
 export default class Structure implements IStructure {
     elements: Array<Element> = [];
-    range: Range = new Range(0, 0);
+    range: Range = new Range(Infinity, -Infinity);
 
     /**
      * Adds an object to the elements array.
