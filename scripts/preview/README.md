@@ -1,7 +1,8 @@
 # Preview GIF
 
 `public/preview.gif` (300 px square, under 1 MB for the Workshop) was made with
-these scripts from seed `river`. Needs Microsoft Edge, Python with Pillow, and
+these scripts from seed `river`, with the paper texture off (it looks muddy when
+scaled down). Needs Microsoft Edge, Python with Pillow, and
 gifsicle (`npm i gifsicle` puts a binary in `node_modules/gifsicle/vendor`).
 
 ```

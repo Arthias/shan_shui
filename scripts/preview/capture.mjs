@@ -32,11 +32,13 @@ const shot = async (file) => {
 const load = async (seed) => {
     await send("Page.navigate", { url: PAGE }); await sleep(1500);
     await evaluate(`window.wallpaperPropertyListener.applyUserProperties({ scrolling: { value: false }, horizontalposition: { value: 0 },
-        verticalposition: { value: ${vertical} }, seed: { value: ${JSON.stringify(seed)} } })`);
+        verticalposition: { value: ${vertical} }, papertexture: { value: false }, seed: { value: ${JSON.stringify(seed)} } })`);
     await sleep(2500);
 };
 
 await send("Page.enable");
+// Exact square viewport: --window-size includes window chrome, leaving white edges
+await send("Emulation.setDeviceMetricsOverride", { width: SIZE, height: SIZE, deviceScaleFactor: 1, mobile: false });
 if (mode === "stills") {
     for (const seed of rest) { await load(seed); await shot(`${outDir}/seed-${seed}.png`); console.log("still", seed); }
 } else {
